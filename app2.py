@@ -47,7 +47,7 @@ for path in file_paths:
 
 # Streamlit UI
 st.title("💬 Dr. Pricing: Your Pricing Advisor")
-st.write("Welcome to Dr. Pricing's Pricing Chat! Please describe your pricing challenge below.")
+st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
 
 # Initialize session state for conversation and other variables
 if "conversation" not in st.session_state:
