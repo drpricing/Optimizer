@@ -32,7 +32,10 @@ def get_file_from_github(owner, repo, path, token):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         file_content = response.json()["content"]
-        return base64.b64decode(file_content).decode('utf-8')
+        try:
+            return base64.b64decode(file_content).decode('utf-8')
+        except UnicodeDecodeError:
+            return base64.b64decode(file_content).decode('latin-1')  # Fallback to another encoding
     else:
         st.error(f"Error fetching file {path} from GitHub")
         return None
