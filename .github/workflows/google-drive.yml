@@ -15,7 +15,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install google-auth google-auth-oauthlib google-auth-httplib2 googleapiclient
+        run: pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
 
       - name: Run script
         env:
