@@ -36,7 +36,10 @@ def get_pricing_advice(user_input):
     except Exception as e:
         return f"Error: {str(e)}"
 
-# User input
+# Get or initialize user input
+if "input_text" not in st.session_state:
+    st.session_state["input_text"] = ""
+
 user_input = st.text_area("Describe your pricing challenge:", key="input_text")
 
 # Button to get recommendation
@@ -44,13 +47,16 @@ if st.button("Send"):
     if user_input.strip():
         # Add user message to conversation
         st.session_state["conversation"].append({"role": "user", "content": user_input})
+
         with st.spinner("Analyzing pricing strategy..."):
             advice = get_pricing_advice(user_input)
+
         # Add Dr. Pricing's response to conversation
         st.session_state["conversation"].append({"role": "assistant", "content": advice})
-        # Clear input field safely
+
+        # Clear input safely by setting `st.session_state["input_text"]` using Streamlit rerun trick
         st.session_state["input_text"] = ""
-        st.experimental_rerun()
+        st.rerun()
     else:
         st.warning("Please enter details about your pricing challenge.")
 
