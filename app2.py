@@ -13,7 +13,14 @@ groq_api_key = st.secrets["groq"]["api_key"]
 github_token = st.secrets["github"]["token"]
 repo_owner = "drpricing"
 repo_name = "mylibrary"
-file_path = "path/to/your/merged_writings.txt"
+
+# List of file paths
+file_paths = [
+    "2020_Book_ThePricingPuzzle.pdf",
+    "2024_Book_ThePricingCompass.pdf",
+    "336421_Final proofs.pdf"
+    "Book AI-Enabled Pricing_2025.pdf"
+]
 
 # Initialize Groq client
 client = Client(api_key=groq_api_key)
