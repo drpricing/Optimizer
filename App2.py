@@ -1,8 +1,3 @@
-It looks like the error is occurring when trying to set the `input_text` key in `st.session_state`. This can happen if the session state is not properly initialized or if there is an issue with the key assignment.
-
-To fix this error, you can ensure that the session state is properly initialized and handle the key assignment more safely. Here's an updated version of your code:
-
-```python
 import streamlit as st
 from groq import Client
 
@@ -13,8 +8,8 @@ groq_api_key = st.secrets["groq"]["api_key"]
 client = Client(api_key=groq_api_key)
 
 # Streamlit UI
-st.title("💬 Dr. Pricing: Your Price Adjustment Advisor")
-st.write("Welcome to Dr. Pricing's Price Adjustment Chat! Please describe your pricing challenge below.")
+st.title("💬 Dr. Pricing: Your Pricing Advisor")
+st.write("Welcome to Dr. Pricing's Pricing Chat! Please describe your pricing challenge below.")
 
 # Initialize session state for conversation
 if "conversation" not in st.session_state:
