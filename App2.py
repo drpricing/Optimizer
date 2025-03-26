@@ -72,6 +72,3 @@ if prompt := st.chat_input("Describe your pricing challenge:"):
         
         message_placeholder.markdown(full_response)
         st.session_state["conversation"].append({"role": "assistant", "content": full_response})
-
-# Display conversation
-display_conversation()
