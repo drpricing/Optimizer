@@ -8,12 +8,16 @@ groq_api_key = st.secrets["groq"]["api_key"]
 client = Client(api_key=groq_api_key)
 
 # Streamlit UI
-st.title("💬 Dr. Pricing: Your Pricing Advisor")
-st.write("Welcome to Dr. Pricing's Pricing Chat! Please describe your pricing challenge below.")
+st.title("💬 Dr. Pricing: Your Price Adjustment Advisor")
+st.write("Welcome to Dr. Pricing's Price Adjustment Chat! Please describe your pricing challenge below.")
 
 # Initialize session state for conversation
 if "conversation" not in st.session_state:
     st.session_state["conversation"] = []
+
+# Ensure input_text is initialized in session state
+if "input_text" not in st.session_state:
+    st.session_state["input_text"] = ""
 
 # Function to display conversation
 def display_conversation():
