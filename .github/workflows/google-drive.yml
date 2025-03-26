@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:  # Allows manual runs
 
 jobs:
   authenticate-drive:
@@ -22,7 +22,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install --upgrade pydrive2 oauth2client  # Ensure latest versions
+          pip install --upgrade pydrive2 oauth2client  # Ensure correct versions
 
       - name: Run authentication script
         env:
