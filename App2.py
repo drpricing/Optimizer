@@ -15,10 +15,6 @@ st.write("Welcome to Dr. Pricing's Price Adjustment Chat! Please describe your p
 if "conversation" not in st.session_state:
     st.session_state["conversation"] = []
 
-# Ensure input_text is initialized in session state
-if "input_text" not in st.session_state:
-    st.session_state["input_text"] = ""
-
 # Function to display conversation
 def display_conversation():
     for message in st.session_state["conversation"]:
@@ -53,7 +49,8 @@ if st.button("Send"):
         # Add Dr. Pricing's response to conversation
         st.session_state["conversation"].append({"role": "assistant", "content": advice})
         # Clear input field safely
-        st.query_params(input_text="")
+        st.session_state["input_text"] = ""
+        st.experimental_rerun()
     else:
         st.warning("Please enter details about your pricing challenge.")
 
