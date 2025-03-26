@@ -18,7 +18,7 @@ repo_name = "mylibrary"
 file_paths = [
     "2020_Book_ThePricingPuzzle.pdf",
     "2024_Book_ThePricingCompass.pdf",
-    "336421_Final proofs.pdf"
+    "336421_Final proofs.pdf",
     "Book AI-Enabled Pricing_2025.pdf"
 ]
 
@@ -34,11 +34,13 @@ def get_file_from_github(owner, repo, path, token):
         file_content = response.json()["content"]
         return base64.b64decode(file_content).decode('utf-8')
     else:
-        st.error("Error fetching file from GitHub")
+        st.error(f"Error fetching file {path} from GitHub")
         return None
 
-# Load your merged writings
-merged_writings_content = get_file_from_github(repo_owner, repo_name, file_path, github_token)
+# Load your documents
+documents_content = {}
+for path in file_paths:
+    documents_content[path] = get_file_from_github(repo_owner, repo_name, path, github_token)
 
 # Streamlit UI
 st.title("💬 Dr. Pricing: Your Pricing Advisor")
@@ -61,8 +63,9 @@ def display_conversation():
 # Function to search private library
 def search_private_library(query):
     results = []
-    if query.lower() in merged_writings_content.lower():
-        results.append("Found in merged writings")
+    for path, content in documents_content.items():
+        if query.lower() in content.lower():
+            results.append(f"Found in {path}")
     return results
 
 # Function to call Groq API
@@ -89,27 +92,29 @@ def get_pricing_advice(user_input):
         logging.error(f"Error calling Groq API: {e}")
         return f"Error: {str(e)}"
 
-# User input
-if prompt := st.chat_input("Describe your pricing challenge:"):
-    st.session_state["conversation"].append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    
-    # Prepend system message to the conversation context for processing
-    conversation_context = [
-        {"role": "system", "content": "You are Dr. Pricing, a pricing strategy expert. Help businesses adjust prices based on market conditions, competitor moves, cost shocks, and demand changes."}
-    ] + st.session_state["conversation"]
-    
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = ""
-        for response in client.chat.completions.create(
-            model="llama3-70b-8192",
-            messages=conversation_context,
-            stream=True,
-        ):
-            full_response += (response.choices[0].delta.content or "")
-            message_placeholder.markdown(full_response + "▌")
+# Main module block
+if __name__ == "__main__":
+    # User input
+    if prompt := st.chat_input("Describe your pricing challenge:"):
+        st.session_state["conversation"].append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
         
-        message_placeholder.markdown(full_response)
-        st.session_state["conversation"].append({"role": "assistant", "content": full_response})
+        # Prepend system message to the conversation context for processing
+        conversation_context = [
+            {"role": "system", "content": "You are Dr. Pricing, a pricing strategy expert. Help businesses adjust prices based on market conditions, competitor moves, cost shocks, and demand changes."}
+        ] + st.session_state["conversation"]
+        
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+            for response in client.chat.completions.create(
+                model="llama3-70b-8192",
+                messages=conversation_context,
+                stream=True,
+            ):
+                full_response += (response.choices[0].delta.content or "")
+                message_placeholder.markdown(full_response + "▌")
+            
+            message_placeholder.markdown(full_response)
+            st.session_state["conversation"].append({"role": "assistant", "content": full_response})
