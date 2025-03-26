@@ -53,7 +53,7 @@ if st.button("Send"):
         # Add Dr. Pricing's response to conversation
         st.session_state["conversation"].append({"role": "assistant", "content": advice})
         # Clear input field safely
-        st.session_state["input_text"] = ""
+        st.experimental_set_query_params(input_text="")
     else:
         st.warning("Please enter details about your pricing challenge.")
 
