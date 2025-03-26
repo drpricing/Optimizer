@@ -1,6 +1,7 @@
 import streamlit as st
 from groq import Client
 import logging
+import uuid
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -15,13 +16,15 @@ client = Client(api_key=groq_api_key)
 st.title("💬 Dr. Pricing: Your Price Adjustment Advisor")
 st.write("Welcome to Dr. Pricing's Price Adjustment Chat! Please describe your pricing challenge below.")
 
-# Initialize session state for conversation
+# Initialize session state for conversation and other variables
 if "conversation" not in st.session_state:
     st.session_state["conversation"] = []
 
-# Ensure input_text is initialized in session state
 if "input_text" not in st.session_state:
     st.session_state["input_text"] = ""
+
+if "conversation_id" not in st.session_state:
+    st.session_state["conversation_id"] = str(uuid.uuid4())
 
 # Function to display conversation
 def display_conversation():
@@ -45,25 +48,30 @@ def get_pricing_advice(user_input):
         logging.error(f"Error calling Groq API: {e}")
         return f"Error: {str(e)}"
 
-# Callback function to clear input_text
-def clear_input():
-    st.session_state["input_text"] = ""
-
 # User input
-user_input = st.text_area("Describe your pricing challenge:", key="input_text")
-
-# Button to get recommendation
-if st.button("Send", on_click=clear_input):
-    logging.debug(f"User input: '{user_input.strip()}'")
-    if user_input.strip():
-        # Add user message to conversation
-        st.session_state["conversation"].append({"role": "user", "content": user_input})
-        with st.spinner("Analyzing pricing strategy..."):
-            advice = get_pricing_advice(user_input)
-        # Add Dr. Pricing's response to conversation
-        st.session_state["conversation"].append({"role": "assistant", "content": advice})
-    else:
-        st.warning("Please enter details about your pricing challenge.")
+if prompt := st.chat_input("Describe your pricing challenge:"):
+    st.session_state["conversation"].append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    
+    # Prepend system message to the conversation context for processing
+    conversation_context = [
+        {"role": "system", "content": "You are Dr. Pricing, a pricing strategy expert. Help businesses adjust prices based on market conditions, competitor moves, cost shocks, and demand changes."}
+    ] + st.session_state["conversation"]
+    
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        full_response = ""
+        for response in client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=conversation_context,
+            stream=True,
+        ):
+            full_response += (response.choices[0].delta.content or "")
+            message_placeholder.markdown(full_response + "▌")
+        
+        message_placeholder.markdown(full_response)
+        st.session_state["conversation"].append({"role": "assistant", "content": full_response})
 
 # Display conversation
 display_conversation()
