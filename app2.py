@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.DEBUG)
 # Load API key from Streamlit secrets
 groq_api_key = st.secrets["groq"]["api_key"]
 github_token = st.secrets["github"]["token"]
-repo_owner = "your_github_username"
-repo_name = "your_private_repo"
+repo_owner = "drpricing"
+repo_name = "mylibrary"
 file_path = "path/to/your/merged_writings.txt"
 
 # Initialize Groq client
