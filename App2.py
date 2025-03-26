@@ -54,7 +54,7 @@ user_input = st.text_area("Describe your pricing challenge:", key="input_text")
 
 # Button to get recommendation
 if st.button("Send", on_click=clear_input):
-    logging.debug(f"User input: {user_input.strip()}")
+    logging.debug(f"User input: '{user_input.strip()}'")
     if user_input.strip():
         # Add user message to conversation
         st.session_state["conversation"].append({"role": "user", "content": user_input})
