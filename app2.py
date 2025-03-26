@@ -46,7 +46,7 @@ for path in file_paths:
     documents_content[path] = get_file_from_github(repo_owner, repo_name, path, github_token)
 
 # Streamlit UI
-st.title("💬 Dr. Pricing: Your Pricing Advisor")
+st.markdown("<h1 style='text-align: center;'>💬 Dr. Pricing: Your Pricing Advisor</h1>", unsafe_allow_html=True)
 st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
 
 # Initialize session state for conversation and other variables
