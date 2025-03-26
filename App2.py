@@ -8,7 +8,7 @@ groq_api_key = st.secrets["groq"]["api_key"]
 client = Client(api_key=groq_api_key)
 
 # Streamlit UI
-st.title("💬 Dr. Pricing: Your Private Pricing Advisor")
+st.title("💬 Dr. Pricing: Your Pricing Advisor")
 st.write("Welcome to Dr. Pricing's Pricing Chat! Please describe your pricing challenge below.")
 
 # Initialize session state for conversation
