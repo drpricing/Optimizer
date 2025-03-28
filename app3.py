@@ -1,55 +1,125 @@
+import streamlit as st
+from groq import Client
 import logging
-import os
-from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS
-import worker  # Import the worker module
+import uuid
+import requests
+import base64
 
-# Initialize Flask app and CORS
-app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
-app.logger.setLevel(logging.ERROR)
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
-# Define the route for the index page
-@app.route('/', methods=['GET'])
-def index():
-    return render_template('index.html')  # Render the index.html template
+# Load API key from Streamlit secrets
+groq_api_key = st.secrets["groq"]["api_key"]
+github_token = st.secrets["github"]["token"]
+repo_owner = "drpricing"
+repo_name = "mylibrary"
 
-# Define the route for processing messages
-@app.route('/process-message', methods=['POST'])
-def process_message_route():
-    user_message = request.json['userMessage']  # Extract the user's message from the request
-    print('user_message', user_message)
+# List of file paths
+file_paths = [
+    "2020_Book_ThePricingPuzzle.pdf",
+    "2024_Book_ThePricingCompass.pdf",
+    "336421_Final proofs.pdf",
+    "Book AI-Enabled Pricing_2025.pdf",
+    "misc.docx",
+    "Simon_Fassnacht-Reference+Document.pdf"
+]
 
-    bot_response = worker.process_prompt(user_message)  # Process the user's message using the worker module
+# Initialize Groq client
+client = Client(api_key=groq_api_key)
 
-    # Return the bot's response as JSON
-    return jsonify({
-        "botResponse": bot_response
-    }), 200
+# Function to fetch file from GitHub
+def get_file_from_github(owner, repo, path, token):
+    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path}"
+    headers = {"Authorization": f"token {token}"}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        file_content = response.json()["content"]
+        try:
+            return base64.b64decode(file_content).decode('utf-8')
+        except UnicodeDecodeError:
+            return base64.b64decode(file_content).decode('latin-1')  # Fallback to another encoding
+    else:
+        st.error(f"Error fetching file {path} from GitHub")
+        return None
 
-# Define the route for processing documents
-@app.route('/process-document', methods=['POST'])
-def process_document_route():
-    # Check if a file was uploaded
-    if 'file' not in request.files:
-        return jsonify({
-            "botResponse": "It seems like the file was not uploaded correctly, can you try "
-                           "again. If the problem persists, try using a different file"
-        }), 400
+# Load your documents
+documents_content = {}
+for path in file_paths:
+    documents_content[path] = get_file_from_github(repo_owner, repo_name, path, github_token)
 
-    file = request.files['file']  # Extract the uploaded file from the request
+# Streamlit UI
+st.title("💬 Dr. Pricing Talks")
+st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :)")
 
-    file_path = file.filename  # Define the path where the file will be saved
-    file.save(file_path)  # Save the file
+# Initialize session state for conversation and other variables
+if "conversation" not in st.session_state:
+    st.session_state["conversation"] = []
+if "input_text" not in st.session_state:
+    st.session_state["input_text"] = ""
+if "conversation_id" not in st.session_state:
+    st.session_state["conversation_id"] = str(uuid.uuid4())
 
-    worker.process_document(file_path)  # Process the document using the worker module
+# Function to display conversation
+def display_conversation():
+    for message in st.session_state["conversation"]:
+        with st.chat_message("user" if message["role"] == "user" else "assistant"):
+            st.write(message["content"])
 
-    # Return a success message as JSON
-    return jsonify({
-        "botResponse": "Thank you for providing your PDF document. I have analyzed it, so now you can ask me any "
-                       "questions regarding it!"
-    }), 200
+# Function to search private library
+def search_private_library(query):
+    results = []
+    for path, content in documents_content.items():
+        if query.lower() in content.lower():
+            results.append(f"Found in {path}")
+    return results
 
-# Run the Flask app
+# Function to call Groq API
+def get_pricing_advice(user_input):
+    try:
+        # Search private library
+        library_results = search_private_library(user_input)
+        
+        # Call Groq API
+        response = client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=[
+                {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."},
+                {"role": "user", "content": user_input}
+            ],
+            temperature=0.7
+        )
+        api_response = response.choices[0].message.get("content", "No response received.")
+        
+        # Combine responses
+        combined_response = api_response + "\n\n" + "\n".join(library_results)
+        return combined_response
+    except Exception as e:
+        logging.error(f"Error calling Groq API: {e}")
+        return f"Error: {str(e)}"
+
+# Main module block
 if __name__ == "__main__":
-    app.run(debug=True, port=8000, host='0.0.0.0')
+    # User input
+    if prompt := st.chat_input("Describe your pricing challenge:"):
+        st.session_state["conversation"].append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        
+        # Prepend system message to the conversation context for processing
+        conversation_context = [
+            {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."}
+        ] + st.session_state["conversation"]
+        
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+            for response in client.chat.completions.create(
+                model="llama3-70b-8192",
+                messages=conversation_context,
+                stream=True,
+            ):
+                full_response += (response.choices[0].delta.content or "")
+                message_placeholder.markdown(full_response + "▌")
+            
+            message_placeholder.markdown(full_response)
+            st.session_state["conversation"].append({"role": "assistant", "content": full_response})
