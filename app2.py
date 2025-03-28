@@ -79,8 +79,16 @@ def save_file_locally(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return file_path
 
+# Function to check if file exists on GitHub
+def check_file_exists_on_github(file_path, owner, repo, token):
+    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{os.path.basename(file_path)}"
+    headers = {"Authorization": f"token {token}"}
+    response = requests.get(url, headers=headers)
+    return response.status_code == 200, response.json().get("sha")
+
 # Function to upload file to GitHub
 def upload_file_to_github(file_path, owner, repo, token):
+    file_exists, sha = check_file_exists_on_github(file_path, owner, repo, token)
     with open(file_path, "rb") as f:
         content = base64.b64encode(f.read()).decode('utf-8')
     url = f"https://api.github.com/repos/{owner}/{repo}/contents/{os.path.basename(file_path)}"
@@ -89,8 +97,10 @@ def upload_file_to_github(file_path, owner, repo, token):
         "message": f"Add {os.path.basename(file_path)}",
         "content": content
     }
+    if file_exists:
+        data["sha"] = sha
     response = requests.put(url, headers=headers, json=data)
-    if response.status_code == 201:
+    if response.status_code == 201 or response.status_code == 200:
         st.success(f"File {os.path.basename(file_path)} uploaded to GitHub successfully!")
     else:
         st.error(f"Error uploading file {os.path.basename(file_path)} to GitHub: {response.json().get('message', 'Unknown error')}")
