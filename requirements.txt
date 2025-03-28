@@ -1,10 +1,7 @@
 matplotlib
 groq
 streamlit
+PyPDF2
 requests
-google-auth
-google-auth-oauthlib
-google-auth-httplib2
-google-api-python-client
 pydrive2
 oauth2client
