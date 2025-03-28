@@ -11,7 +11,7 @@ from sentence_transformers import SentenceTransformer
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Initialize session state at the very top
+# Initialize session state at the very top, ensuring it's not missing
 if "conversation" not in st.session_state:
     st.session_state["conversation"] = []
 if "input_text" not in st.session_state:
@@ -133,12 +133,20 @@ st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challen
 
 # Function to display conversation
 def display_conversation():
-    for message in st.session_state["conversation"]:
+    for message in st.session_state.get("conversation", []):
         with st.chat_message("user" if message["role"] == "user" else "assistant"):
             st.write(message["content"])
 
 # Main chatbot logic
 if __name__ == "__main__":
+    # Ensure that the conversation is initialized
+    if "conversation" not in st.session_state:
+        st.session_state["conversation"] = []
+
+    # Display the conversation history first, before asking for input
+    display_conversation()
+
+    # User input
     if prompt := st.chat_input("Describe your pricing challenge:"):
         st.session_state["conversation"].append({"role": "user", "content": prompt})
 
