@@ -1,5 +1,4 @@
 import streamlit as st
-from groq import Client
 import logging
 import uuid
 import requests
@@ -7,11 +6,12 @@ import base64
 import PyPDF2
 import docx
 import os
+from io import BytesIO
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Load API key from Streamlit secrets
+# Load API keys and repository details from Streamlit secrets
 groq_api_key = st.secrets["groq"]["api_key"]
 github_token = st.secrets["github"]["token"]
 repo_owner = "drpricing"
@@ -72,7 +72,7 @@ def extract_text_from_docx(file):
             text += para.text + "\n"
         return text
     except Exception as e:
-        logging.error(f"Error extracting text from {file.name}: {e}")
+        logging.error(f"Error extracting text from DOCX: {e}")
         return ""
 
 # Function to extract text from TXT
@@ -145,66 +145,6 @@ if uploaded_files:
         upload_file_to_github(file_path, repo_owner, repo_name, github_token)
 
 # Initialize session state for conversation and other variables
-if "conversation" not in st.session_state:
-    st.session_state["conversation"] = []
-if "input_text" not in st.session_state:
-    st.session_state["input_text"] = ""
-if "conversation_id" not in st.session_state:
-    st.session_state["conversation_id"] = str(uuid.uuid4())
-
-# Function to display conversation
-def display_conversation():
-    for message in st.session_state["conversation"]:
-        with st.chat_message("user" if message["role"] == "user" else "assistant"):
-            st.write(message["content"])
-
-# Function to search private library
-def search_private_library(query):
-    results = []
-    for path, content in documents_content.items():
-        if query.lower() in content.lower():
-            results.append(f"Found in {path}")
-    return results
-
-# Function to call Groq API
-def get_pricing_advice(user_input):
-    try:
-        # Search private library
-        library_results = search_private_library(user_input)
-        
-        # Call Groq API
-        response = client.chat.completions.create(
-            model="llama3-70b-8192",
-            messages=[{"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."},
-                      {"role": "user", "content": user_input}],
-            temperature=0.7
-        )
-        api_response = response.choices[0].message["content"] if "content" in response.choices[0].message else "No response received."
-        
-        # Combine responses
-        combined_response = api_response + "\n\n" + "\n".join(library_results)
-        return combined_response
-    except Exception as e:
-        logging.error(f"Error calling Groq API: {e}")
-        return f"Error: {str(e)}"
-
-# Main module block
-if __name__ == "__main__":
-    # User input
-    if prompt := st.chat_input("Describe your pricing challenge:"):
-        st.session_state["conversation"].append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        
-        # Prepend system message to the conversation context for processing
-        conversation_context = [{"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."}] + st.session_state["conversation"]
-        
-        with st.chat_message("assistant"):
-            message_placeholder = st.empty()
-            full_response = ""
-            for response in client.chat.completions.create(model="llama3-70b-8192", messages=conversation_context, stream=True):
-                full_response += (response.choices[0].delta.content or "")
-                message_placeholder.markdown(full_response + "▌")
-            
-            message_placeholder.markdown(full_response)
-            st.session_state["conversation"].append({"role": "assistant", "content": full_response})
+if "conversation" not in
+::contentReference[oaicite:11]{index=11}
+ 
