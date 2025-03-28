@@ -152,6 +152,11 @@ if __name__ == "__main__":
 
     # User input
     if prompt := st.chat_input("Describe your pricing challenge:"):
+        # Initialize the conversation if necessary
+        if "conversation" not in st.session_state:
+            st.session_state["conversation"] = []
+
+        # Append user message
         st.session_state["conversation"].append({"role": "user", "content": prompt})
 
         with st.chat_message("user"):
