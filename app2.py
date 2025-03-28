@@ -4,6 +4,8 @@ import logging
 import uuid
 import requests
 import base64
+import PyPDF2
+import docx
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -47,15 +49,38 @@ documents_content = {}
 for path in file_paths:
     documents_content[path] = get_file_from_github(repo_owner, repo_name, path, github_token)
 
+# Function to extract text from PDF
+def extract_text_from_pdf(file):
+    reader = PyPDF2.PdfFileReader(file)
+    text = ""
+    for page_num in range(reader.numPages):
+        page = reader.getPage(page_num)
+        text += page.extract_text()
+    return text
+
+# Function to extract text from DOCX
+def extract_text_from_docx(file):
+    doc = docx.Document(file)
+    text = ""
+    for para in doc.paragraphs:
+        text += para.text + "\n"
+    return text
+
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
 st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
-uploaded_files = st.file_uploader("Upload files here", accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True)
 
 if uploaded_files:
     for uploaded_file in uploaded_files:
         st.write(f"Uploaded file: {uploaded_file.name}")
-        # You can add more processing logic here
+        if uploaded_file.name.endswith(".pdf"):
+            file_text = extract_text_from_pdf(uploaded_file)
+        elif uploaded_file.name.endswith(".docx"):
+            file_text = extract_text_from_docx(uploaded_file)
+        else:
+            file_text = uploaded_file.read().decode('utf-8')
+        documents_content[uploaded_file.name] = file_text
 
 # Initialize session state for conversation and other variables
 if "conversation" not in st.session_state:
