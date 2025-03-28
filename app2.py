@@ -120,7 +120,7 @@ def get_pricing_advice(user_input):
         response = client.chat.completions.create(
             model="llama3-70b-8192",
             messages=[
-                {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast as much as a fun person, talking like a real human-being with a low-key profile and avoiding using phrases like \"As Dr. Pricing\". Assist businesses as their pricing compass. Help individuals understand and appreciate how pricing works, resolving their pricing puzzles."},
+                {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast as much as a fun person, known for speaking in a clear and concise fashion, talking like a real human-being with a low-key profile and avoiding using phrases like \"As Dr. Pricing\". Assist businesses as their pricing compass. Help individuals understand and appreciate how pricing works, resolving their pricing puzzles."},
                 {"role": "user", "content": user_input}
             ],
             temperature=0.7
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         
         # Prepend system message to the conversation context for processing
         conversation_context = [
-            {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast as much as a fun person, talking like a real human-being with a low-key profile and avoiding using phrases like \"As Dr. Pricing\". Assist businesses as their pricing compass. Help individuals understand and appreciate how pricing works, shedding a light on their pricing puzzles."}
+            {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast as much as a fun person, known for speaking in a clear and concise fashion, talking like a real human-being with a low-key profile and avoiding using phrases like \"As Dr. Pricing\". Assist businesses as their pricing compass. Help individuals understand and appreciate how pricing works, shedding a light on their pricing puzzles."}
         ] + st.session_state["conversation"]
         
         with st.chat_message("assistant"):
