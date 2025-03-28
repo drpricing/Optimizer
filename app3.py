@@ -37,7 +37,7 @@ def get_file_from_github(owner, repo, path, token):
         try:
             return base64.b64decode(file_content).decode('utf-8')
         except UnicodeDecodeError:
-            return base64.b64decode(file_content).decode('latin-1')  # Fallback to another encoding
+            return base64.b64decode(file_content).decode('latin-1')  # Fallback encoding
     else:
         st.error(f"Error fetching file {path} from GitHub")
         return None
@@ -49,7 +49,7 @@ for path in file_paths:
 
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
-st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :)")
+st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
 
 # Initialize session state for conversation and other variables
 if "conversation" not in st.session_state:
@@ -65,33 +65,45 @@ def display_conversation():
         with st.chat_message("user" if message["role"] == "user" else "assistant"):
             st.write(message["content"])
 
-# Function to search private library
+# Function to extract relevant snippet from a document
+def extract_relevant_snippet(content, query, window=200):
+    index = content.lower().find(query.lower())
+    if index == -1:
+        return None
+    start = max(0, index - window)
+    end = min(len(content), index + len(query) + window)
+    return content[start:end] + "..."
+
+# Function to search private library and extract useful information
 def search_private_library(query):
     results = []
     for path, content in documents_content.items():
-        if query.lower() in content.lower():
-            results.append(f"Found in {path}")
+        if content and query.lower() in content.lower():
+            snippet = extract_relevant_snippet(content, query)
+            if snippet:
+                results.append(f"**Source: {path}**\n{snippet}\n")
     return results
 
-# Function to call Groq API
+# Function to call Groq API with private library context
 def get_pricing_advice(user_input):
     try:
         # Search private library
         library_results = search_private_library(user_input)
-        
+        library_context = "\n\n".join(library_results) if library_results else "No relevant documents found."
+
         # Call Groq API
         response = client.chat.completions.create(
             model="llama3-70b-8192",
             messages=[
-                {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."},
-                {"role": "user", "content": user_input}
+                {"role": "system", "content": "You are Dr. Pricing, the author of 'The Pricing Puzzle', 'The Pricing Compass', and 'Reimagine Pricing'. You are a pricing expert who speaks clearly and concisely. You help businesses navigate pricing challenges in an engaging manner."},
+                {"role": "user", "content": f"User Query: {user_input}\n\nRelevant Information from Private Library:\n{library_context}"}
             ],
             temperature=0.7
         )
         api_response = response.choices[0].message.get("content", "No response received.")
-        
+
         # Combine responses
-        combined_response = api_response + "\n\n" + "\n".join(library_results)
+        combined_response = api_response
         return combined_response
     except Exception as e:
         logging.error(f"Error calling Groq API: {e}")
@@ -104,22 +116,10 @@ if __name__ == "__main__":
         st.session_state["conversation"].append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
-        
-        # Prepend system message to the conversation context for processing
-        conversation_context = [
-            {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."}
-        ] + st.session_state["conversation"]
-        
+
+        # Generate response with library context
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
-            full_response = ""
-            for response in client.chat.completions.create(
-                model="llama3-70b-8192",
-                messages=conversation_context,
-                stream=True,
-            ):
-                full_response += (response.choices[0].delta.content or "")
-                message_placeholder.markdown(full_response + "▌")
-            
+            full_response = get_pricing_advice(prompt)
             message_placeholder.markdown(full_response)
             st.session_state["conversation"].append({"role": "assistant", "content": full_response})
