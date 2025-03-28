@@ -11,7 +11,7 @@ from sentence_transformers import SentenceTransformer
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Initialize session state variables explicitly
+# Ensure session state initialization
 if "conversation" not in st.session_state:
     st.session_state["conversation"] = []
 if "conversation_id" not in st.session_state:
