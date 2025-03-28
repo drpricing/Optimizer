@@ -11,6 +11,14 @@ from sentence_transformers import SentenceTransformer
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
+# Initialize session state at the very top
+if "conversation" not in st.session_state:
+    st.session_state["conversation"] = []
+if "input_text" not in st.session_state:
+    st.session_state["input_text"] = ""
+if "conversation_id" not in st.session_state:
+    st.session_state["conversation_id"] = str(uuid.uuid4())
+
 # Load API keys
 groq_api_key = st.secrets["groq"]["api_key"]
 github_token = st.secrets["github"]["token"]
@@ -122,14 +130,6 @@ def get_pricing_advice(user_input):
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
 st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
-
-# Initialize session state variables
-if "conversation" not in st.session_state:
-    st.session_state["conversation"] = []
-if "input_text" not in st.session_state:
-    st.session_state["input_text"] = ""
-if "conversation_id" not in st.session_state:
-    st.session_state["conversation_id"] = str(uuid.uuid4())
 
 # Function to display conversation
 def display_conversation():
