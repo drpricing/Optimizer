@@ -11,15 +11,15 @@ from sentence_transformers import SentenceTransformer
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Initialize session state at the very top, ensuring it's not missing
+# Initialize session state variables explicitly
 if "conversation" not in st.session_state:
     st.session_state["conversation"] = []
-if "input_text" not in st.session_state:
-    st.session_state["input_text"] = ""
 if "conversation_id" not in st.session_state:
     st.session_state["conversation_id"] = str(uuid.uuid4())
+if "input_text" not in st.session_state:
+    st.session_state["input_text"] = ""
 
-# Load API keys
+# Load API keys from Streamlit secrets
 groq_api_key = st.secrets["groq"]["api_key"]
 github_token = st.secrets["github"]["token"]
 repo_owner = "drpricing"
@@ -28,7 +28,7 @@ repo_name = "mylibrary"
 # Initialize SentenceTransformer for embeddings
 embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-# List of file paths
+# List of file paths to your library
 file_paths = [
     "2020_Book_ThePricingPuzzle.pdf",
     "2024_Book_ThePricingCompass.pdf",
@@ -64,7 +64,7 @@ def get_file_from_github(owner, repo, path, token):
         logging.error(f"Error fetching {path} from GitHub: {response.status_code}")
         return None
 
-# Load documents and create a FAISS index
+# Load documents and create FAISS index
 documents_content = {}
 document_snippets = []
 document_metadata = []
@@ -131,6 +131,10 @@ def get_pricing_advice(user_input):
 st.title("💬 Dr. Pricing Talks")
 st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :")
 
+# Ensure that intro message is displayed only once when conversation is empty
+if len(st.session_state["conversation"]) == 0:
+    st.session_state["conversation"].append({"role": "assistant", "content": "Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :)"})
+
 # Function to display conversation
 def display_conversation():
     for message in st.session_state.get("conversation", []):
@@ -139,23 +143,11 @@ def display_conversation():
 
 # Main chatbot logic
 if __name__ == "__main__":
-    # Ensure that the conversation is initialized
-    if "conversation" not in st.session_state:
-        st.session_state["conversation"] = []
-
-    # Display the introductory message first if conversation is empty
-    if len(st.session_state["conversation"]) == 0:
-        st.session_state["conversation"].append({"role": "assistant", "content": "Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :)"})
-
-    # Display the conversation history before asking for input
+    # Display the conversation history first
     display_conversation()
 
     # User input
     if prompt := st.chat_input("Describe your pricing challenge:"):
-        # Initialize the conversation if necessary
-        if "conversation" not in st.session_state:
-            st.session_state["conversation"] = []
-
         # Append user message
         st.session_state["conversation"].append({"role": "user", "content": prompt})
 
