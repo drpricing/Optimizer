@@ -82,7 +82,7 @@ def get_pricing_advice(user_input):
         response = client.chat.completions.create(
             model="llama3-70b-8192",
             messages=[
-                {"role": "system", "content": "You are Dr. Pricing, a pricing expert as much as a fun person, keeping a low-key profile and avoiding using phrases like \"As Dr. Pricing\". Help businesses adjust prices based on market conditions, competitor moves, cost shocks, and demand changes."},
+                {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."},
                 {"role": "user", "content": user_input}
             ],
             temperature=0.7
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         
         # Prepend system message to the conversation context for processing
         conversation_context = [
-            {"role": "system", "content": "You are Dr. Pricing, a pricing expert as much as a fun person, keeping a low-key profile and avoid using phrases like \"As Dr. Pricing\". Help businesses adjust prices based on market conditions, competitor moves, cost shocks, and demand changes."}
+            {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."}
         ] + st.session_state["conversation"]
         
         with st.chat_message("assistant"):
