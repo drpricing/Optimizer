@@ -129,7 +129,7 @@ def get_pricing_advice(user_input):
 
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
-st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
+st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :")
 
 # Function to display conversation
 def display_conversation():
@@ -143,7 +143,11 @@ if __name__ == "__main__":
     if "conversation" not in st.session_state:
         st.session_state["conversation"] = []
 
-    # Display the conversation history first, before asking for input
+    # Display the introductory message first if conversation is empty
+    if len(st.session_state["conversation"]) == 0:
+        st.session_state["conversation"].append({"role": "assistant", "content": "Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :)"})
+
+    # Display the conversation history before asking for input
     display_conversation()
 
     # User input
