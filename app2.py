@@ -20,7 +20,8 @@ file_paths = [
     "2024_Book_ThePricingCompass.pdf",
     "336421_Final proofs.pdf",
     "Book AI-Enabled Pricing_2025.pdf",
-    "misc.docx"
+    "misc.docx",
+    "Simon_Fassnacht-Reference+Document.pdf"
 ]
 
 # Initialize Groq client
