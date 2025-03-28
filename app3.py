@@ -11,7 +11,7 @@ from sentence_transformers import SentenceTransformer
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Ensure session state initialization
+# Initialize session state if not already done
 if "conversation" not in st.session_state:
     st.session_state["conversation"] = []
 if "conversation_id" not in st.session_state:
@@ -129,15 +129,18 @@ def get_pricing_advice(user_input):
 
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
-st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :")
+st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :)")
 
 # Ensure that intro message is displayed only once when conversation is empty
 if len(st.session_state["conversation"]) == 0:
-    st.session_state["conversation"].append({"role": "assistant", "content": "Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :)"})
+    st.session_state["conversation"].append({
+        "role": "assistant", 
+        "content": "Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! :)"
+    })
 
 # Function to display conversation
 def display_conversation():
-    for message in st.session_state.get("conversation", []):
+    for message in st.session_state["conversation"]:
         with st.chat_message("user" if message["role"] == "user" else "assistant"):
             st.write(message["content"])
 
