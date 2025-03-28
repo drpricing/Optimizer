@@ -5,3 +5,4 @@ PyPDF2
 requests
 pydrive2
 oauth2client
+python-docx
