@@ -6,6 +6,7 @@ import requests
 import base64
 import PyPDF2
 import docx
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -51,10 +52,10 @@ for path in file_paths:
 
 # Function to extract text from PDF
 def extract_text_from_pdf(file):
-    reader = PyPDF2.PdfFileReader(file)
+    reader = PyPDF2.PdfReader(file)
     text = ""
-    for page_num in range(reader.numPages):
-        page = reader.getPage(page_num)
+    for page_num in range(len(reader.pages)):
+        page = reader.pages[page_num]
         text += page.extract_text()
     return text
 
@@ -70,10 +71,34 @@ def extract_text_from_docx(file):
 def extract_text_from_txt(file):
     return file.read().decode('utf-8')
 
+# Function to save file locally
+def save_file_locally(uploaded_file):
+    file_path = os.path.join("uploaded_files", uploaded_file.name)
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    return file_path
+
+# Function to upload file to GitHub
+def upload_file_to_github(file_path, owner, repo, token):
+    with open(file_path, "rb") as f:
+        content = base64.b64encode(f.read()).decode('utf-8')
+    url = f"https://api.github.com/repos/{owner}/{repo}/contents/{os.path.basename(file_path)}"
+    headers = {"Authorization": f"token {token}"}
+    data = {
+        "message": f"Add {os.path.basename(file_path)}",
+        "content": content
+    }
+    response = requests.put(url, headers=headers, json=data)
+    if response.status_code == 201:
+        st.success(f"File {os.path.basename(file_path)} uploaded to GitHub successfully!")
+    else:
+        st.error(f"Error uploading file {os.path.basename(file_path)} to GitHub")
+
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
 st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
-uploaded_files = st.file_uploader("Upload files for analysis", accept_multiple_files=True)
+st.write("**Note:** If you choose to upload files for analysis, rest assured that your files will not be saved permanently. They will only be used for the current session and will be deleted afterwards.")
+uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True)
 
 if uploaded_files:
     for uploaded_file in uploaded_files:
@@ -87,6 +112,10 @@ if uploaded_files:
         else:
             file_text = uploaded_file.read().decode('utf-8')
         documents_content[uploaded_file.name] = file_text
+        
+        # Save file locally and upload to GitHub
+        file_path = save_file_locally(uploaded_file)
+        upload_file_to_github(file_path, repo_owner, repo_name, github_token)
 
 # Initialize session state for conversation and other variables
 if "conversation" not in st.session_state:
@@ -120,7 +149,7 @@ def get_pricing_advice(user_input):
         response = client.chat.completions.create(
             model="llama3-70b-8192",
             messages=[
-                {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast as much as a fun person, known for speaking in a clear and concise fashion, talking like a real human-being with a low-key profile and avoiding using phrases like \"As Dr. Pricing\". Assist businesses as their pricing compass. Help individuals understand and appreciate how pricing works, resolving their pricing puzzles."},
+                {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."},
                 {"role": "user", "content": user_input}
             ],
             temperature=0.7
@@ -144,7 +173,7 @@ if __name__ == "__main__":
         
         # Prepend system message to the conversation context for processing
         conversation_context = [
-            {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast as much as a fun person, known for speaking in a clear and concise fashion, talking like a real human-being with a low-key profile and avoiding using phrases like \"As Dr. Pricing\". Assist businesses as their pricing compass. Help individuals understand and appreciate how pricing works, shedding a light on their pricing puzzles."}
+            {"role": "system", "content": "You are Dr. Pricing, a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."}
         ] + st.session_state["conversation"]
         
         with st.chat_message("assistant"):
