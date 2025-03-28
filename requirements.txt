@@ -6,3 +6,4 @@ requests
 pydrive2
 oauth2client
 python-docx
+faiss-cpu sentence-transformers
