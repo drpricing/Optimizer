@@ -73,6 +73,7 @@ def extract_text_from_txt(file):
 
 # Function to save file locally
 def save_file_locally(uploaded_file):
+    os.makedirs("uploaded_files", exist_ok=True)  # Ensure the directory exists
     file_path = os.path.join("uploaded_files", uploaded_file.name)
     with open(file_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
