@@ -80,7 +80,7 @@ def upload_file_to_github(file_path, owner, repo, token):
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
 st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
-uploaded_files = st.file_uploader("Upload files for analysis", accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True)
 
 # Store file contents
 documents_content = {}
