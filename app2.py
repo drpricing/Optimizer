@@ -97,8 +97,7 @@ def upload_file_to_github(file_path, owner, repo, token):
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
 st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
-st.write("**Note:** If you choose to upload files for analysis, rest assured that your files will not be saved permanently. They will only be used for the current session and will be deleted afterwards.")
-uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload files for analysis", accept_multiple_files=True)
 
 if uploaded_files:
     for uploaded_file in uploaded_files:
