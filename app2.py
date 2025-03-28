@@ -73,7 +73,7 @@ def extract_text_from_txt(file):
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
 st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
-uploaded_files = st.file_uploader("You can upload files for analysis. They will only be used for the current session and will be deleted afterwards", accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload files for analysis", accept_multiple_files=True)
 
 if uploaded_files:
     for uploaded_file in uploaded_files:
