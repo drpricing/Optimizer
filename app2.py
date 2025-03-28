@@ -75,18 +75,33 @@ def save_file_locally(uploaded_file):
 def upload_file_to_github(file_path, owner, repo, token):
     file_name = os.path.basename(file_path)
     url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_name}"
-    headers = {"Authorization": f"token {token}"}
-    
+    headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
+
+    # Check if file already exists on GitHub
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        sha = response.json().get("sha")  # Get the existing file's SHA
+    else:
+        sha = None  # File doesn't exist yet
+
+    # Read and encode file content
     with open(file_path, "rb") as f:
         content = base64.b64encode(f.read()).decode('utf-8')
-    
+
+    # Prepare request payload
     data = {
-        "message": f"Add {file_name}",
-        "content": content
+        "message": f"Add or update {file_name}",
+        "content": content,
     }
     
+    # Include SHA if updating an existing file
+    if sha:
+        data["sha"] = sha
+
+    # Upload or update file
     response = requests.put(url, headers=headers, json=data)
-    
+
+    # Handle response
     if response.status_code in [200, 201]:
         st.success(f"File {file_name} uploaded to GitHub successfully!")
     else:
