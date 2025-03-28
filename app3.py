@@ -17,7 +17,7 @@ github_token = st.secrets["github"]["token"]
 repo_owner = "drpricing"
 repo_name = "mylibrary"
 
-# Initialize SentenceTransformer model for embeddings
+# Initialize SentenceTransformer for embeddings
 embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 # List of file paths
@@ -60,7 +60,7 @@ def get_file_from_github(owner, repo, path, token):
 documents_content = {}
 document_snippets = []
 document_metadata = []
-index = faiss.IndexFlatL2(384)  # FAISS index for vector search (384-dimension vectors)
+index = faiss.IndexFlatL2(384)  # FAISS index for vector search (384-dim vectors)
 
 for path in file_paths:
     content = get_file_from_github(repo_owner, repo_name, path, github_token)
@@ -119,16 +119,36 @@ def get_pricing_advice(user_input):
         logging.error(f"Error calling Groq API: {e}")
         return f"Error: {str(e)}"
 
+# Streamlit UI
+st.title("💬 Dr. Pricing Talks")
+st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
+
+# Initialize session state variables
+if "conversation" not in st.session_state:
+    st.session_state["conversation"] = []
+if "input_text" not in st.session_state:
+    st.session_state["input_text"] = ""
+if "conversation_id" not in st.session_state:
+    st.session_state["conversation_id"] = str(uuid.uuid4())
+
+# Function to display conversation
+def display_conversation():
+    for message in st.session_state["conversation"]:
+        with st.chat_message("user" if message["role"] == "user" else "assistant"):
+            st.write(message["content"])
+
 # Main chatbot logic
 if __name__ == "__main__":
     if prompt := st.chat_input("Describe your pricing challenge:"):
         st.session_state["conversation"].append({"role": "user", "content": prompt})
+
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generate response
+        # Generate chatbot response
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = get_pricing_advice(prompt)
             message_placeholder.markdown(full_response)
+
             st.session_state["conversation"].append({"role": "assistant", "content": full_response})
