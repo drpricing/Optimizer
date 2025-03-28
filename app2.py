@@ -1,4 +1,4 @@
-import streamlit as st
+port streamlit as st
 from groq import Client
 import logging
 import uuid
@@ -66,10 +66,14 @@ def extract_text_from_docx(file):
         text += para.text + "\n"
     return text
 
+# Function to extract text from TXT
+def extract_text_from_txt(file):
+    return file.read().decode('utf-8')
+
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
 st.write("Welcome to Dr. Pricing's ChatBot! Please describe your pricing challenge below. Enjoy while it lasts! (:")
-uploaded_files = st.file_uploader("Upload PDF or DOCX files here", accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload files", accept_multiple_files=True)
 
 if uploaded_files:
     for uploaded_file in uploaded_files:
@@ -78,6 +82,8 @@ if uploaded_files:
             file_text = extract_text_from_pdf(uploaded_file)
         elif uploaded_file.name.endswith(".docx"):
             file_text = extract_text_from_docx(uploaded_file)
+        elif uploaded_file.name.endswith(".txt"):
+            file_text = extract_text_from_txt(uploaded_file)
         else:
             file_text = uploaded_file.read().decode('utf-8')
         documents_content[uploaded_file.name] = file_text
