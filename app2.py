@@ -93,7 +93,7 @@ def upload_file_to_github(file_path, owner, repo, token):
     if response.status_code == 201:
         st.success(f"File {os.path.basename(file_path)} uploaded to GitHub successfully!")
     else:
-        st.error(f"Error uploading file {os.path.basename(file_path)} to GitHub")
+        st.error(f"Error uploading file {os.path.basename(file_path)} to GitHub: {response.json().get('message', 'Unknown error')}")
 
 # Streamlit UI
 st.title("💬 Dr. Pricing Talks")
