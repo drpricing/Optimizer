@@ -145,6 +145,13 @@ if uploaded_files:
         upload_file_to_github(file_path, repo_owner, repo_name, github_token)
 
 # Initialize session state for conversation and other variables
-if "conversation" not in
-::contentReference[oaicite:11]{index=11}
+if "conversation" not in st.session_state:
+    st.session_state.conversation = []
+
+# Function to get response from Groq AI
+def get_groq_response(prompt):
+    try:
+        response = client.chat(prompt)
+        return response.get("choices", [{}])[0].get("message
+::contentReference[oaicite:9]{index=9}
  
