@@ -114,11 +114,6 @@ if user_input:
         if file_content:
             library_context += f"From {os.path.basename(path)}:\n{file_content}\n\n"
     
-    # Optionally, display the library context to the user
-    if library_context:
-        with st.expander("Library Context"):
-            st.write(library_context)
-    
     # --- Construct the Payload ---
     messages_payload = [
         {"role": "system", "content": "You are Dr. Pricing, a pricing expert. Answer concisely."}
