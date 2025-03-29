@@ -22,7 +22,7 @@ repo_owner = "drpricing"
 repo_name = "mylibrary"
 
 file_paths = [
-    "misc.docx"
+    "misc.docx",
     "Beating inflation FINAL.docx",
     "EV publication_20221104_23H.docx",
     "Reimagine Pricing - How AI is changing everything.docx",
