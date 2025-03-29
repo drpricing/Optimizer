@@ -76,16 +76,6 @@ def fetch_file_content(path):
         st.error(f"Failed to fetch {path} (HTTP {response.status_code})")
     return None
 
-def is_relevant(file_path, file_content, query):
-    """
-    Determine if a file is relevant by checking if the query appears in
-    either the file's name or its content (ignoring case).
-    """
-    query_lower = query.lower()
-    name_match = query_lower in os.path.basename(file_path).lower()
-    content_match = query_lower in file_content.lower() if file_content else False
-    return name_match or content_match
-
 # --- Initialize Session State ---
 if "messages" not in st.session_state:
     st.session_state.messages = [{
@@ -116,7 +106,7 @@ if user_input:
     with st.chat_message("user"):
         st.write(user_input)
     
-    # --- Fetch Relevant Information from Private Library ---
+    # --- Fetch Information from Private Library (Always Append) ---
     library_context = ""
     debug_info = []
     
@@ -127,27 +117,29 @@ if user_input:
             snippet_debug = file_content[:150].replace("\n", " ")
             debug_info.append(f"✅ {path}: {len(file_content)} chars loaded. Snippet: '{snippet_debug}...'")
             
-            # Use improved matching: check both file name and content for query relevance
-            if is_relevant(path, file_content, user_input):
-                # Increase snippet length to 800 characters to provide more context
-                snippet = file_content[:800]
-                library_context += f"From {os.path.basename(path)}:\n{snippet}\n\n"
+            # Always append the file content regardless of query relevance
+            snippet = file_content[:800]  # You can adjust the snippet length as needed
+            library_context += f"From {os.path.basename(path)}:\n{snippet}\n\n"
         else:
             debug_info.append(f"❌ {path}: No text extracted")
 
     # Display debugging information
     st.write("**Debug Info:**", "\n".join(debug_info))
     
+    # Optionally, display the library context to the user
+    if library_context:
+        with st.expander("Library Context"):
+            st.write(library_context)
+    
     # --- Construct the Payload ---
     messages_payload = [
         {"role": "system", "content": "You are Dr. Pricing, a pricing expert. Answer concisely."}
     ]
     
-    if library_context:
-        messages_payload.append({
-            "role": "system",
-            "content": f"Context from private library:\n{library_context}"
-        })
+    messages_payload.append({
+        "role": "system",
+        "content": f"Context from private library:\n{library_context}"
+    })
     
     messages_payload.extend(st.session_state.messages)
     
