@@ -23,7 +23,6 @@ repo_name = "mylibrary"
 
 file_paths = [
     "misc.docx"
-    
 ]
 
 # --- File Processing Functions ---
