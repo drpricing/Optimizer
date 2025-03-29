@@ -23,23 +23,10 @@ repo_name = "mylibrary"
 
 file_paths = [
     "misc1.docx"
-    # Add or remove files as needed.
+    # max 24000 characters at one time
 ]
 
 # --- File Processing Functions ---
-
-def extract_text_from_pdf(pdf_bytes):
-    """Extract text from PDF files."""
-    text = ""
-    try:
-        pdf_stream = BytesIO(pdf_bytes)
-        reader = PdfReader(pdf_stream)
-        for page in reader.pages:
-            extracted_text = page.extract_text() or ""
-            text += extracted_text + "\n"
-    except Exception as e:
-        st.error(f"Error extracting PDF text: {e}")
-    return text.strip()
 
 def extract_text_from_docx(docx_bytes):
     """Extract text from DOCX files."""
@@ -101,7 +88,7 @@ for message in st.session_state.messages:
         st.write(message["content"])
 
 # --- Handle User Input ---
-user_input = st.chat_input("Ask about pricing...")
+user_input = st.chat_input("Ask about pricing or something else (:")
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
@@ -116,7 +103,7 @@ if user_input:
     
     # --- Construct the Payload ---
     messages_payload = [
-        {"role": "system", "content": "You are Dr. Pricing, a pricing expert. Answer concisely."}
+        {"role": "system", "content": "You are Dr. Pricing, the author of 'the pricing puzzle','the pricing compass','reimagine pricing', etc., a pricing expert and enthusiast who speaks clearly and concisely, like a real human-being. You maintain a low-key profile and avoid using phrases like 'As Dr. Pricing'. Your role is to assist businesses as their pricing compass and help individuals understand and appreciate how pricing works, resolving their pricing puzzles in a fun and engaging manner."}
     ]
     
     messages_payload.append({
@@ -136,7 +123,7 @@ if user_input:
         full_response = response.choices[0].message.content
     except Exception as e:
         st.error(f"Error during API call: {e}")
-        full_response = "Hello! I'm having a temporary issue. Could you ask your pricing question again?"
+        full_response = "Hello! I'm having a headache. Could you ask your question again?"
     
     # Display and store the assistant's response
     with st.chat_message("assistant"):
