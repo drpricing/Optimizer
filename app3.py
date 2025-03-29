@@ -22,8 +22,7 @@ repo_owner = "drpricing"
 repo_name = "mylibrary"
 
 file_paths = [
-    "misc.docx",
-    "2020_Book_ThePricingPuzzle.pdf"
+    "misc.docx"
 ]
 
 # --- File Processing Functions ---
