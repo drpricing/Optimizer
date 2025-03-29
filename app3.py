@@ -22,12 +22,8 @@ repo_owner = "drpricing"
 repo_name = "mylibrary"
 
 file_paths = [
-    "2020_Book_ThePricingPuzzle.pdf",
-    "2024_Book_ThePricingCompass.pdf",
-    "336421_Final proofs.pdf",
-    "Book AI-Enabled Pricing_2025.pdf",
-    "misc.docx",
-    "Simon_Fassnacht-Reference+Document.pdf"
+    "misc.docx"
+    
 ]
 
 # --- File Processing Functions ---
@@ -95,7 +91,7 @@ def is_relevant(file_path, file_content, query):
 if "messages" not in st.session_state:
     st.session_state.messages = [{
         "role": "assistant",
-        "content": "Hello! I'm Dr. Pricing's AI assistant. How can I help with your pricing questions today?"
+        "content": "Hello! I'm Dr. Pricing. How can I help with your pricing questions today?"
     }]
 
 # --- Initialize the Groq Client ---
@@ -107,7 +103,7 @@ except Exception as err:
     st.stop()
 
 # --- Streamlit UI Setup ---
-st.title("💬 Dr. Pricing Assistant")
+st.title("💬 Dr. Pricing's ChatBot")
 
 # Display chat history
 for message in st.session_state.messages:
