@@ -22,9 +22,8 @@ repo_owner = "drpricing"
 repo_name = "mylibrary"
 
 file_paths = [
-    "misc.docx",
-    "The Pricing Compass_20231102_23H_rev2.docx"
-    # You can add more file paths as needed.
+    "misc1.docx"
+    # Add or remove files as needed.
 ]
 
 # --- File Processing Functions ---
@@ -96,9 +95,6 @@ except Exception as err:
 # --- Streamlit UI Setup ---
 st.title("💬 Dr. Pricing Talks")
 
-# Allow users to choose how much library context to include:
-include_full_context = st.checkbox("Include full library content in query", value=False)
-
 # Display chat history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -111,16 +107,12 @@ if user_input:
     with st.chat_message("user"):
         st.write(user_input)
     
-    # --- Fetch Information from Private Library with User-Triggered Expansion ---
+    # --- Fetch Information from Private Library (Append Full File Content) ---
     library_context = ""
     for path in file_paths:
         file_content = fetch_file_content(path)
         if file_content:
-            if include_full_context:
-                content_to_use = file_content  # Append full content
-            else:
-                content_to_use = file_content[:800]  # Append just a snippet
-            library_context += f"From {os.path.basename(path)}:\n{content_to_use}\n\n"
+            library_context += f"From {os.path.basename(path)}:\n{file_content}\n\n"
     
     # Optionally, display the library context to the user
     if library_context:
