@@ -23,13 +23,7 @@ repo_name = "mylibrary"
 
 file_paths = [
     "misc.docx",
-    "Beating inflation FINAL.docx",
-    "EV publication_20221104_23H.docx",
-    "Reimagine Pricing - How AI is changing everything.docx",
-    "The Pricing Compass_20231102_23H_rev2.docx",
-    "The Pricing Puzzle_20200511_10H.docx",
-    "制胜通货膨胀_20221122_24H.docx"
-
+    "The Pricing Compass_20231102_23H_rev2.docx"
 ]
 
 # --- File Processing Functions ---
@@ -113,16 +107,14 @@ if user_input:
     with st.chat_message("user"):
         st.write(user_input)
     
-    # --- Fetch Information from Private Library (Always Append) ---
+    # --- Fetch Information from Private Library (Append Full File Content) ---
     library_context = ""
-    
     for path in file_paths:
         file_content = fetch_file_content(path)
         if file_content:
-            snippet = file_content[:800]  # Adjust snippet length as needed
-            library_context += f"From {os.path.basename(path)}:\n{snippet}\n\n"
-
-    # Optionally, display the library context to the user if desired
+            library_context += f"From {os.path.basename(path)}:\n{file_content}\n\n"
+    
+    # Optionally, display the library context to the user
     if library_context:
         with st.expander("Library Context"):
             st.write(library_context)
