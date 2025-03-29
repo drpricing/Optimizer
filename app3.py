@@ -22,7 +22,8 @@ repo_owner = "drpricing"
 repo_name = "mylibrary"
 
 file_paths = [
-    "misc.docx"
+    "misc.docx",
+    "The Pricing Compass_20231102_23H_rev2.docx"
     # You can add more file paths as needed.
 ]
 
