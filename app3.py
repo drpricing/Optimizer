@@ -22,8 +22,7 @@ repo_owner = "drpricing"
 repo_name = "mylibrary"
 
 file_paths = [
-    "misc.docx",
-    "The Pricing Compass_20231102_23H_rev2.docx"
+    "misc.docx"
 ]
 
 # --- File Processing Functions ---
