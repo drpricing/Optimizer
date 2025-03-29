@@ -103,7 +103,7 @@ except Exception as err:
     st.stop()
 
 # --- Streamlit UI Setup ---
-st.title("💬 Dr. Pricing's ChatBot")
+st.title("💬 Dr. Pricing Talks")
 
 # Display chat history
 for message in st.session_state.messages:
