@@ -109,8 +109,7 @@ if user_input:
     
     # --- Fetch Information from Private Library (Always Append) ---
     library_context = ""
-    debug_info = []
-    
+        
     for path in file_paths:
         file_content = fetch_file_content(path)
         if file_content:
