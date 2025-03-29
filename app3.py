@@ -22,8 +22,14 @@ repo_owner = "drpricing"
 repo_name = "mylibrary"
 
 file_paths = [
-    "misc.docx",
-    "2020_Book_ThePricingPuzzle.pdf"
+    "misc.docx"
+    "Beating inflation FINAL.docx",
+    "EV publication_20221104_23H.docx",
+    "Reimagine Pricing - How AI is changing everything.docx",
+    "The Pricing Compass_20231102_23H_rev2.docx",
+    "The Pricing Puzzle_20200511_10H.docx",
+    "制胜通货膨胀_20221122_24H.docx"
+
 ]
 
 # --- File Processing Functions ---
@@ -109,24 +115,14 @@ if user_input:
     
     # --- Fetch Information from Private Library (Always Append) ---
     library_context = ""
-        
+    
     for path in file_paths:
         file_content = fetch_file_content(path)
         if file_content:
-            # Log the number of characters and a snippet of text for debugging
-            snippet_debug = file_content[:150].replace("\n", " ")
-            debug_info.append(f"✅ {path}: {len(file_content)} chars loaded. Snippet: '{snippet_debug}...'")
-            
-            # Always append the file content regardless of query relevance
-            snippet = file_content[:800]  # You can adjust the snippet length as needed
+            snippet = file_content[:800]  # Adjust snippet length as needed
             library_context += f"From {os.path.basename(path)}:\n{snippet}\n\n"
-        else:
-            debug_info.append(f"❌ {path}: No text extracted")
 
-    # Display debugging information
-    st.write("**Debug Info:**", "\n".join(debug_info))
-    
-    # Optionally, display the library context to the user
+    # Optionally, display the library context to the user if desired
     if library_context:
         with st.expander("Library Context"):
             st.write(library_context)
