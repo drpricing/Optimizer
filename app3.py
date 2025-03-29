@@ -68,7 +68,7 @@ def fetch_file_content(path):
 if "messages" not in st.session_state:
     st.session_state.messages = [{
         "role": "assistant",
-        "content": "Hello! I'm Dr. Pricing. How can I help with your pricing questions today?"
+        "content": "Hello! I'm Dr. Pricing. How can I help you today?"
     }]
 
 # --- Initialize the Groq Client ---
