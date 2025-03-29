@@ -2,6 +2,14 @@ import streamlit as st
 from groq import Groq
 import requests
 import base64
+from io import BytesIO
+import os
+
+# Optional: For PDF text extraction, install PyPDF2: pip install PyPDF2
+try:
+    from PyPDF2 import PdfReader
+except ImportError:
+    st.warning("PyPDF2 not installed. PDF extraction may not work properly.")
 
 # --- Private Library Configuration ---
 github_token = st.secrets["github"]["token"]
@@ -18,21 +26,40 @@ file_paths = [
     "Simon_Fassnacht-Reference+Document.pdf"
 ]
 
+def extract_text_from_pdf(pdf_bytes):
+    """Extract text from PDF bytes using PyPDF2."""
+    text = ""
+    try:
+        pdf_stream = BytesIO(pdf_bytes)
+        reader = PdfReader(pdf_stream)
+        for page in reader.pages:
+            text += page.extract_text() or ""
+    except Exception as e:
+        st.error(f"Error extracting PDF text: {e}")
+    return text
+
 def fetch_file_content(path):
     """
     Fetch the file content from a private GitHub repository.
-    Returns decoded text if the file is base64-encoded; otherwise None.
+    For PDF files, use PyPDF2 to extract text.
+    For other files, return the decoded text.
     """
     url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{path}"
     headers = {"Authorization": f"token {github_token}"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         data = response.json()
-        # Check if content is base64 encoded
         if data.get("encoding") == "base64":
             try:
-                content = base64.b64decode(data["content"]).decode('utf-8', errors='ignore')
-                return content
+                decoded_bytes = base64.b64decode(data["content"])
+                # Check file extension for specialized processing
+                ext = os.path.splitext(path)[1].lower()
+                if ext == ".pdf":
+                    # Extract text from PDF bytes
+                    return extract_text_from_pdf(decoded_bytes)
+                else:
+                    # For non-PDF files, attempt to decode as UTF-8 text
+                    return decoded_bytes.decode('utf-8', errors='ignore')
             except Exception as e:
                 st.error(f"Error decoding content from {path}: {e}")
     else:
@@ -74,25 +101,25 @@ if user_input:
     library_context = ""
     for path in file_paths:
         file_content = fetch_file_content(path)
-        if file_content and user_input.lower() in file_content.lower():
-            # Extract a snippet (e.g., first 500 characters) for context
-            snippet = file_content[:500]
-            library_context += f"From {path}:\n{snippet}\n\n"
+        if file_content:
+            # Debug: log file snippet length for verification
+            st.write(f"Fetched {len(file_content)} characters from {path}")
+            if user_input.lower() in file_content.lower():
+                snippet = file_content[:500]
+                library_context += f"From {path}:\n{snippet}\n\n"
     
     # --- Construct the Payload ---
-    # Start with a system message for behavior
     messages_payload = [
         {"role": "system", "content": "You are Dr. Pricing, a pricing expert. Answer concisely."}
     ]
     
-    # If any relevant library info was found, add it as additional context.
+    # Include any relevant library context as additional system context
     if library_context:
         messages_payload.append({
             "role": "system",
             "content": f"Additional context from private library:\n{library_context}"
         })
     
-    # Append the chat history (user and assistant messages)
     messages_payload.extend(st.session_state.messages)
     
     # --- Query the Groq API ---
