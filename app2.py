@@ -116,7 +116,7 @@ if user_input:
     # --- Query the Groq API ---
     try:
         response = client.chat.completions.create(
-            model="deepseek-r1-distill-llama-70b",
+            model="llama3-70b-8192",
             messages=messages_payload,
             temperature=0.7
         )
